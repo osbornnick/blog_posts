@@ -22,6 +22,96 @@ Markdown is:
 
 I can write blog posts anywhere, easily, and with lots of flexibility. Here's how.
 ## Rendering Markdown with Django
+
+In the process of building this blog, I came up with two methods of storing and rendering markdown files as HTML blog posts. One that's quicker and another that takes up less space. As space is cheap, and speed is king, I went with the fast method.
+
 ### Quickly
+
+The quick method uses a custom `save()` method for a `Post` model. On save, the model reads a specified Markdown file and saves it in `Post.content` as HTML. Here's how to do it from the ground up, assuming the ground means you've got Django installed.
+
+First things first, install `pygments` and `markdown` into whatever environment you are using.
+
+```
+> pip install Pygments
+> pip install markdown
+```
+
+Start a new Django project and app for our markdown blog.
+```
+> django-admin startproject markdown_blog_example
+> cd markdown_blog_example
+.\markdown_blog_example> python manage.py startapp quick
+```
+
+Let's test that out, just to be sure that it works.
+
+```
+.\markdown_blog_example> python manage.py runserver
+```
+Visit "localhost:8000" on your favorite web-browser, and you should see a green rocket taking off - we're good to go!
+
+Now that our Django directory structure is all set, let's set up some simple scaffolding for viewing our blog posts.
+
+To use the `quick` app, add it to the list `INSTALLED_APPS` in `.\markdown_blog_example\markdown_blog_example\settings.py`, like so:
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'quick'
+]
+```
+
+ Then, change `urls.py` in that same directory to include the urls patterns we'll define later:
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('quick/', include('quick.urls'))
+]
+```
+
+Now that that's done, the rest of our work lies in the `.\markdown_blog_example\quick\` directory. In `quick\models.py` we'll define the `Post` model class. To keep it simple, we'll give it only three class attributes to store information:
+- `title`, the title of our post
+- `md`, to store its Markdown
+- `content`, to store the HTML converted from the Markdown file in `md`
+
+In `quick\models.py`, this looks like :
+
+```python
+class Post(models.Model):
+    title = models.CharField(max_length=255)
+    md = models.FileField(null=True)
+    content = models.TextField(default="", editable=False)
+```
+To use the markdown library in the custom `save` method, import it at the top of `models.py`:
+
+```python hl_lines="2"
+from django.db import models
+import markdown
+```
+
+Now for the custom save function. This method is defined within the `Post` class.
+It opens the file specified in `md`, decodes it to utf-8 so that it can be parsed by the `markdown` library, and saves it into the `content` attribute.
+
+```python
+def save(self, *args, **kwargs):
+      file = self.md
+      decoded = file.read().decode('utf-8')
+      extensions = ['fenced_code', 'codehilite']
+      output = markdown.markdown(decoded, extensions=extensions)
+      self.content = output
+      super().save(*args, **kwargs)
+```
+
+
+
 
 ### Compactly

@@ -111,7 +111,12 @@ def save(self, *args, **kwargs):
       super().save(*args, **kwargs)
 ```
 
+Next is defining the url paths for blog posts, the views to responds to web requests, and the HTML template to return.
 
+
+When accessing the HTML string saved in `Post.content` within the post template, we'll need to mark it as safe. Create a directory called `templates` in the `quick` app directory, and within `templates` create `blog.html`.
 
 
 ### Compactly
+
+### Bonus: Code highlighting

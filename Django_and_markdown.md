@@ -114,9 +114,35 @@ def save(self, *args, **kwargs):
 Next is defining the url paths for blog posts, the views to responds to web requests, and the HTML template to return.
 
 
-When accessing the HTML string saved in `Post.content` within the post template, we'll need to mark it as safe. Create a directory called `templates` in the `quick` app directory, and within `templates` create `blog.html`.
+When accessing the HTML string saved in `Post.content` within the post template, we'll need to mark it as safe, so that Django does not perform any more HTLM escaping prior to output. Create a directory called `templates` in the `quick` app directory, and within `templates` create `blog.html`. Save the following within `blog.html`:
+
+```html
+<h1>{{ post.title }}</h1>
+
+<div class="content">
+  {{ post.content | safe }}
+</div>
+```
+
+This is a Django template. Inside the double curly brackets, we can access attributes of models (that represent database fields). Thus, `post.content` and `post.title` are the title and content of the `Post` model.
+
+To make `post` available to the template when it renders, we pass it in the `context` dictionary in the method that defines our view. In the `quick` app directory, create `views.py`. Save the following in `views.py`:
+
+```python
+from django.shortcuts import render
+from quick.models import Post
 
 
+def post(request, pk):
+    post = Post.objects.get(pk=pk)
+
+    context = {
+        "post": post
+    }
+    return render(request, "post.html", context)
+```
+
+The view function `post` takes a Web request and returns a Web response. The request specifies the primary key for the post that we want to show the user, retrieves the correct `Post` object, and passes that objects attributes in a `context` dictionary to the Django template HTML. 
 ### Compactly
 
 ### Bonus: Code highlighting

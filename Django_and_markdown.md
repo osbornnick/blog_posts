@@ -110,6 +110,7 @@ def save(self, *args, **kwargs):
       self.content = output
       super().save(*args, **kwargs)
 ```
+The two extensions in `extensions` are useful for presenting code in your blog posts. [Codehilite](https://python-markdown.github.io/extensions/code_hilite/) adds code/syntax highlighting to standard Python-Markdown code blocks using Pygments and [Fenced Code](https://python-markdown.github.io/extensions/fenced_code_blocks/) adds a secondary way to define code blocks. Find implementation instructions in the code provided.
 
 In sum, we should have a `models.py` file that looks like:
 
@@ -195,7 +196,4 @@ Now, when visiting the `/admin/` URL, you'll be able to use the admin site to ma
 ```
 markdown_blog_example> django-admin createsuperuser
 ```
-Ta-da! Migrate your database and you're ready to start blogging with Markdown! Making your first post is simple. Simply fire up the admin site and create a new `Post` object.
-### Compactly
-
-### Bonus: Code highlighting
+Ta-da! Migrate your database and you're ready to start blogging with Markdown! Making your first post is simple. Simply fire up the admin site and create a new `Post` object, uploading a .md file for its contents. Once your `Post` is saved, the corresponding html is automatically generated and stored within the model's `content`, ready to be served at your request.
